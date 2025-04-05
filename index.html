@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalori- och Proteinräknare</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Kalori- och Proteinräknare</h1>
+    <form id="entryForm">
+        <input type="text" id="quantity" placeholder="Mängd (t.ex. 2)">
+        <select id="unit">
+            <option value="st">st</option>
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="dl">dl</option>
+        </select>
+        <input type="text" id="food" placeholder="Matvara (t.ex. ägg)">
+        <button type="submit">Lägg till</button>
+    </form>
+
+    <div id="summary">
+        <h2>Dagens intag - <span id="todayDate"></span></h2>
+        <p>Totala kalorier: <span id="totalCalories">0</span> kcal</p>
+        <p>Totalt protein: <span id="totalProtein">0</span> g</p>
+        <button id="saveDay">Spara dagen</button>
+        <button id="resetDay">Nollställ dagen</button>
+    </div>
+
+    <h2>Tidigare dagar</h2>
+    <ul id="history"></ul>
+
+    <script src="script.js"></script>
+</body>
+</html>
