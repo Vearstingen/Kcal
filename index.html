@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Kaloriräknare med API</title>
+  <style>
+    body { font-family: Arial; margin: 20px; background: #eef; }
+    input, select, button { margin: 5px; padding: 8px; }
+    #result, #summary, #history { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Kaloriräknare med API</h1>
+  <input type="number" id="amount" placeholder="Mängd" />
+  <select id="unit">
+    <option value="g">gram</option>
+    <option value="ml">ml</option>
+    <option value="dl">dl</option>
+    <option value="st">styck</option>
+  </select>
+  <input type="text" id="food" placeholder="Mat (t.ex. kvarg)" />
+  <button onclick="addFood()">Lägg till</button>
+
+  <div id="result"></div>
+  <div id="summary"></div>
+  <ul id="history"></ul>
+
+  <script>
+    let totalCalories = 0;
+    let totalProtein = 0;
+
+    function convertToGrams(amount, unit) {
+      const conversions = { g: 1, ml: 1, dl: 100, st: 100 };
+      return amount * (conversions[unit] || 1);
+    }
+
+    async function fetchNutrition(query) {
+      const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${query}.json`);
+      const data = await response.json();
+      if (data.status === 1 && data.product.nutriments) {
+        return {
+          calories: data.product.nutriments['energy-kcal_100g'] || 0,
+          protein: data.product.nutriments['proteins_100g'] || 0
+        };
+      } else {
+        throw new Error("Produkt hittades inte");
+      }
+    }
+
+    async function addFood() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const unit = document.getElementById('unit').value;
+      const food = document.getElementById('food').value.toLowerCase().replace(/ /g, "_");
+
+      const grams = convertToGrams(amount, unit);
+
+      try {
+        const nutrition = await fetchNutrition(food);
+        const kcal = (nutrition.calories / 100) * grams;
+        const protein = (nutrition.protein / 100) * grams;
+
+        totalCalories += kcal;
+        totalProtein += protein;
+
+        document.getElementById('result').innerHTML += `<p>${amount} ${unit} ${food.replace(/_/g, " ")}: ${kcal.toFixed(0)} kcal, ${protein.toFixed(1)} g protein</p>`;
+        document.getElementById('summary').innerHTML = `<strong>Totalt idag:</strong> ${totalCalories.toFixed(0)} kcal, ${totalProtein.toFixed(1)} g protein`;
+      } catch (e) {
+        alert("Kunde inte hämta information om " + food);
+      }
+
+      document.getElementById('amount').value = '';
+      document.getElementById('food').value = '';
+    }
+  </script>
+</body>
+</html>
